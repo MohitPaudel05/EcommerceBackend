@@ -14,9 +14,14 @@ namespace Ecommerce.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Price { get; set; }
+
         public string? ImageUrl { get; set; }
 
         public int CategoryId { get; set; }
-        public Category Category { get; set; }
+
+        public Category? Category { get; set; } // nullable for POST/PUT
+
+        [NotMapped]
+        public string? CategoryName => Category?.Name; // only name in GET
     }
 }

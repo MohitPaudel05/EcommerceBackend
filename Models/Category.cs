@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Ecommerce.Models
 {
@@ -11,6 +12,7 @@ namespace Ecommerce.Models
 
         public string? Description { get; set; }
 
+        [JsonIgnore]
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

@@ -9,7 +9,7 @@ namespace Ecommerce.Interfaces
         Task AddAsync(T entity);
         void Update(T entity);
         void Delete(T entity);
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
+     
     }
 }
 

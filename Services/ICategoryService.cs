@@ -1,6 +1,6 @@
 ﻿using Ecommerce.Models;
 
-namespace Ecommerce.Services
+namespace Ecommerce.Interfaces
 {
     public interface ICategoryService
     {

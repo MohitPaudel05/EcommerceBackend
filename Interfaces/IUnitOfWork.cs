@@ -1,6 +1,6 @@
 ﻿namespace Ecommerce.Interfaces
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork :IDisposable
     {
         IProductRepository Products { get; }
         ICategoryRepository Categories { get; }

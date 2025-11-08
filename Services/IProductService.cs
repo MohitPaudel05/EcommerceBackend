@@ -1,6 +1,6 @@
 ﻿using Ecommerce.Models;
 
-namespace Ecommerce.Services
+namespace Ecommerce.Interfaces
 {
     public interface IProductService
     {
@@ -10,6 +10,5 @@ namespace Ecommerce.Services
         Task AddProductAsync(Product product);
         Task UpdateProductAsync(Product product);
         Task DeleteProductAsync(int id);
-
     }
 }

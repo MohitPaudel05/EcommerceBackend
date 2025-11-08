@@ -19,5 +19,11 @@ namespace Ecommerce.UnitOfWork
         }
 
         public async Task SaveAsync() => await _context.SaveChangesAsync();
+
+        //  Dispose context properly
+        public void Dispose()
+        {
+            _context.Dispose();
+        }
     }
 }
