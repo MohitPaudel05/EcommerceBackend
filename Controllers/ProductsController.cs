@@ -8,7 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
-    public ProductsController(IProductService productService) => _productService = productService;
+    private readonly IWebHostEnvironment _env;
+
+    public ProductsController(IProductService productService, IWebHostEnvironment env)
+    {
+        _productService = productService;
+        _env = env;
+    }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -46,31 +52,69 @@ public class ProductsController : ControllerBase
         return Ok(dto);
     }
 
+    // Create product with image
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
+    public async Task<IActionResult> Create([FromForm] ProductCreateDto dto)
     {
+        string? imageUrl = null;
+
+        if (dto.Image != null)
+        {
+            var uploadsDir = Path.Combine(_env.WebRootPath, "images");
+            if (!Directory.Exists(uploadsDir))
+                Directory.CreateDirectory(uploadsDir);
+
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(dto.Image.FileName);
+            var filePath = Path.Combine(uploadsDir, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.Image.CopyToAsync(stream);
+            }
+
+            imageUrl = $"/images/{fileName}";
+        }
+
         var product = new Product
         {
             Name = dto.Name,
             Description = dto.Description,
             Price = dto.Price,
-            ImageUrl = dto.ImageUrl,
+            ImageUrl = imageUrl,
             CategoryId = dto.CategoryId
         };
+
         await _productService.AddProductAsync(product);
         return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
     }
 
+    // Update product with optional image
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
+    public async Task<IActionResult> Update(int id, [FromForm] ProductCreateDto dto)
     {
         var existing = await _productService.GetProductByIdAsync(id);
         if (existing == null) return NotFound();
 
+        if (dto.Image != null)
+        {
+            var uploadsDir = Path.Combine(_env.WebRootPath, "images");
+            if (!Directory.Exists(uploadsDir))
+                Directory.CreateDirectory(uploadsDir);
+
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(dto.Image.FileName);
+            var filePath = Path.Combine(uploadsDir, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await dto.Image.CopyToAsync(stream);
+            }
+
+            existing.ImageUrl = $"/images/{fileName}";
+        }
+
         existing.Name = dto.Name;
         existing.Description = dto.Description;
         existing.Price = dto.Price;
-        existing.ImageUrl = dto.ImageUrl;
         existing.CategoryId = dto.CategoryId;
 
         await _productService.UpdateProductAsync(existing);
