@@ -1,4 +1,5 @@
-﻿using Ecommerce.Interfaces;
+﻿using Ecommerce.Dtos;
+using Ecommerce.Interfaces;
 using Ecommerce.Models;
 
 namespace Ecommerce.Services
@@ -8,32 +9,78 @@ namespace Ecommerce.Services
         private readonly IUnitOfWork _unitOfWork;
         public CategoryService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-        public async Task<IEnumerable<Category>> GetAllCategoriesAsync() =>
-            await _unitOfWork.Categories.GetAllCategoriesWithProductsAsync();
-
-        public async Task<Category?> GetCategoryByIdAsync(int id) =>
-            await _unitOfWork.Categories.GetByIdAsync(id);
-
-        public async Task AddCategoryAsync(Category category)
+        // Get all categories with their product names
+        public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
-            await _unitOfWork.Categories.AddAsync(category);
-            await _unitOfWork.SaveAsync();
+            var categories = await _unitOfWork.Categories.GetAllCategoriesWithProductsAsync();
+            return categories.Select(c => new CategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                ProductNames = c.Products.Select(p => p.Name).ToList()
+            });
         }
 
-        public async Task UpdateCategoryAsync(Category category)
-        {
-            _unitOfWork.Categories.Update(category);
-            await _unitOfWork.SaveAsync();
-        }
-
-        public async Task DeleteCategoryAsync(int id)
+        // Get single category by ID
+        public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
         {
             var category = await _unitOfWork.Categories.GetByIdAsync(id);
-            if (category != null)
+            if (category == null) return null;
+
+            return new CategoryDto
             {
-                _unitOfWork.Categories.Delete(category);
-                await _unitOfWork.SaveAsync();
-            }
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                ProductNames = category.Products.Select(p => p.Name).ToList()
+            };
+        }
+
+        // Create category
+        public async Task<CategoryDto> CreateCategoryAsync(CategoryCreateDto dto)
+        {
+            var category = new Category
+            {
+                Name = dto.Name,
+                Description = dto.Description
+            };
+
+            await _unitOfWork.Categories.AddAsync(category);
+            await _unitOfWork.SaveAsync();
+
+            return new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+                ProductNames = new List<string>()
+            };
+        }
+
+        // Update category
+        public async Task<bool> UpdateCategoryAsync(int id, CategoryCreateDto dto)
+        {
+            var existing = await _unitOfWork.Categories.GetByIdAsync(id);
+            if (existing == null) return false;
+
+            existing.Name = dto.Name;
+            existing.Description = dto.Description;
+
+            _unitOfWork.Categories.Update(existing);
+            await _unitOfWork.SaveAsync();
+            return true;
+        }
+
+        // Delete category
+        public async Task<bool> DeleteCategoryAsync(int id)
+        {
+            var category = await _unitOfWork.Categories.GetByIdAsync(id);
+            if (category == null) return false;
+
+            _unitOfWork.Categories.Delete(category);
+            await _unitOfWork.SaveAsync();
+            return true;
         }
     }
 }

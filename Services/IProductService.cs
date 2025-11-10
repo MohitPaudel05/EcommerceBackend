@@ -1,14 +1,14 @@
-﻿using Ecommerce.Models;
+﻿using Ecommerce.Dtos;
+
 
 namespace Ecommerce.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync();
-        Task<Product?> GetProductByIdAsync(int id);
-        Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId);
-        Task AddProductAsync(Product product);
-        Task UpdateProductAsync(Product product);
-        Task DeleteProductAsync(int id);
+        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<ProductDto?> GetProductByIdAsync(int id);
+        Task<ProductDto> CreateProductAsync(ProductCreateDto dto, IWebHostEnvironment env);
+        Task<bool> UpdateProductAsync(int id, ProductCreateDto dto, IWebHostEnvironment env);
+        Task<bool> DeleteProductAsync(int id);
     }
 }
