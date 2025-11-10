@@ -2,35 +2,30 @@
 using Ecommerce.Interfaces;
 using Ecommerce.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Repositories
 {
     public class ProductRepository : GenericRepository<Product>, IProductRepository
     {
         public ProductRepository(ApplicationDbContext context) : base(context) { }
-        //load products with their categories
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+
+        public async Task<IEnumerable<Product>> GetAllProductsWithCategoriesAsync()
         {
             return await _context.Products
-                                 .Include(p => p.Category)
+                                 .Include(p => p.ProductCategories)
+                                 .ThenInclude(pc => pc.Category)
                                  .ToListAsync();
-        }
-        // load single category products by category id
-        
-        public async Task<Product?> GetProductWithCategoryByIdAsync(int id)
-        {
-            return await _context.Products
-                                 .Include(p => p.Category)
-                                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        // Load products by category Id with Category
-        public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(int categoryId)
+        public async Task<Product?> GetProductWithCategoriesByIdAsync(int id)
         {
             return await _context.Products
-                                 .Where(p => p.CategoryId == categoryId)
-                                 .Include(p => p.Category)
-                                 .ToListAsync();
+                                 .Include(p => p.ProductCategories)
+                                 .ThenInclude(pc => pc.Category)
+                                 .FirstOrDefaultAsync(p => p.Id == id);
         }
     }
 }

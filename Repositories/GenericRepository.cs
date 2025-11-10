@@ -1,7 +1,8 @@
 ﻿using Ecommerce.Datas;
 using Ecommerce.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Repositories
 {
@@ -13,7 +14,7 @@ namespace Ecommerce.Repositories
         public GenericRepository(ApplicationDbContext context)
         {
             _context = context;
-            _dbSet = _context.Set<T>();
+            _dbSet = context.Set<T>();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync() => await _dbSet.ToListAsync();
@@ -25,6 +26,5 @@ namespace Ecommerce.Repositories
         public void Update(T entity) => _dbSet.Update(entity);
 
         public void Delete(T entity) => _dbSet.Remove(entity);
-
     }
 }

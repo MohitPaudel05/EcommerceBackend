@@ -13,11 +13,7 @@ public class CategoriesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var categories = await _categoryService.GetAllCategoriesAsync();
-        return Ok(categories);
-    }
+    public async Task<IActionResult> GetAll() => Ok(await _categoryService.GetAllCategoriesAsync());
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
@@ -30,6 +26,9 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CategoryCreateDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var created = await _categoryService.CreateCategoryAsync(dto);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
@@ -37,6 +36,9 @@ public class CategoriesController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] CategoryCreateDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var updated = await _categoryService.UpdateCategoryAsync(id, dto);
         if (!updated) return NotFound();
         return NoContent();

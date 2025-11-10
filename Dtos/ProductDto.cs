@@ -1,15 +1,19 @@
-﻿namespace Ecommerce.Dtos
+﻿using System.Collections.Generic;
+
+namespace Ecommerce.Dtos
 {
     public class ProductDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string? Description { get; set; }
-        public decimal Price { get; set; }
-        public string? ImageUrl { get; set; }
-        public int CategoryId { get; set; }
 
-        // Only category name
-        public string CategoryName { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+
+        public string Description { get; set; } = string.Empty;
+
+        public decimal Price { get; set; }
+
+        public string? ImageUrl { get; set; }
+
+        public List<string> CategoryNames { get; set; } = new List<string>();
     }
 }

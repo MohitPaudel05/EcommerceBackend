@@ -1,4 +1,6 @@
 ﻿using Ecommerce.Dtos;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Interfaces
 {

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Ecommerce.Models
 {
@@ -12,16 +12,12 @@ namespace Ecommerce.Models
 
         public string? Description { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
+        [Required]
         public decimal Price { get; set; }
 
         public string? ImageUrl { get; set; }
 
-        public int CategoryId { get; set; }
-
-        public Category? Category { get; set; } // nullable for POST/PUT
-
-        [NotMapped]
-        public string? CategoryName => Category?.Name; // only name in GET
+        [JsonIgnore]
+        public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
     }
 }

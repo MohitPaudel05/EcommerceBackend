@@ -1,10 +1,11 @@
 ﻿using Ecommerce.Datas;
 using Ecommerce.Interfaces;
 using Ecommerce.Repositories;
+using System.Threading.Tasks;
 
 namespace Ecommerce.UnitOfWork
 {
-    public class UnitOfWork: IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
 
@@ -20,10 +21,6 @@ namespace Ecommerce.UnitOfWork
 
         public async Task SaveAsync() => await _context.SaveChangesAsync();
 
-        //  Dispose context properly
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+        public void Dispose() => _context.Dispose();
     }
 }

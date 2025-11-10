@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Ecommerce.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251107101024_initalmigration")]
-    partial class initalmigration
+    [Migration("20251110144529_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,7 +48,7 @@ namespace Ecommerce.Migrations
                         new
                         {
                             Id = 1,
-                            Description = "Electronic gadgets and devices",
+                            Description = "Electronic gadgets",
                             Name = "Electronics"
                         },
                         new
@@ -73,9 +73,6 @@ namespace Ecommerce.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
@@ -88,11 +85,10 @@ namespace Ecommerce.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
 
@@ -100,7 +96,6 @@ namespace Ecommerce.Migrations
                         new
                         {
                             Id = 1,
-                            CategoryId = 1,
                             Description = "Smooth and responsive wireless mouse",
                             ImageUrl = "https://example.com/mouse.jpg",
                             Name = "Wireless Mouse",
@@ -109,7 +104,6 @@ namespace Ecommerce.Migrations
                         new
                         {
                             Id = 2,
-                            CategoryId = 2,
                             Description = "Comfortable cotton t-shirt",
                             ImageUrl = "https://example.com/tshirt.jpg",
                             Name = "Cotton T-Shirt",
@@ -118,7 +112,6 @@ namespace Ecommerce.Migrations
                         new
                         {
                             Id = 3,
-                            CategoryId = 3,
                             Description = "Learn C# programming",
                             ImageUrl = "https://example.com/book.jpg",
                             Name = "Programming Book",
@@ -126,20 +119,70 @@ namespace Ecommerce.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Ecommerce.Models.Product", b =>
+            modelBuilder.Entity("Ecommerce.Models.ProductCategory", b =>
+                {
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductId", "CategoryId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("ProductCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = 1,
+                            CategoryId = 1
+                        },
+                        new
+                        {
+                            ProductId = 2,
+                            CategoryId = 2
+                        },
+                        new
+                        {
+                            ProductId = 3,
+                            CategoryId = 3
+                        },
+                        new
+                        {
+                            ProductId = 3,
+                            CategoryId = 1
+                        });
+                });
+
+            modelBuilder.Entity("Ecommerce.Models.ProductCategory", b =>
                 {
                     b.HasOne("Ecommerce.Models.Category", "Category")
-                        .WithMany("Products")
+                        .WithMany("ProductCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Ecommerce.Models.Product", "Product")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Ecommerce.Models.Category", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("ProductCategories");
+                });
+
+            modelBuilder.Entity("Ecommerce.Models.Product", b =>
+                {
+                    b.Navigation("ProductCategories");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,7 @@
 ﻿using Ecommerce.Dtos;
-
+using Microsoft.AspNetCore.Hosting;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Interfaces
 {

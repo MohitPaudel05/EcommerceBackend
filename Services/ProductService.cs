@@ -1,6 +1,12 @@
 ﻿using Ecommerce.Dtos;
 using Ecommerce.Interfaces;
 using Ecommerce.Models;
+using Microsoft.AspNetCore.Hosting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ecommerce.Services
 {
@@ -9,10 +15,9 @@ namespace Ecommerce.Services
         private readonly IUnitOfWork _unitOfWork;
         public ProductService(IUnitOfWork unitOfWork) => _unitOfWork = unitOfWork;
 
-        // Get all
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
-            var products = await _unitOfWork.Products.GetAllProductsAsync();
+            var products = await _unitOfWork.Products.GetAllProductsWithCategoriesAsync();
             return products.Select(p => new ProductDto
             {
                 Id = p.Id,
@@ -20,15 +25,13 @@ namespace Ecommerce.Services
                 Description = p.Description,
                 Price = p.Price,
                 ImageUrl = p.ImageUrl,
-                CategoryId = p.CategoryId,
-                CategoryName = p.CategoryName
+                CategoryNames = p.ProductCategories.Select(pc => pc.Category.Name).ToList()
             });
         }
 
-        // Get by ID
         public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
-            var product = await _unitOfWork.Products.GetProductWithCategoryByIdAsync(id);
+            var product = await _unitOfWork.Products.GetProductWithCategoriesByIdAsync(id);
             if (product == null) return null;
 
             return new ProductDto
@@ -38,12 +41,10 @@ namespace Ecommerce.Services
                 Description = product.Description,
                 Price = product.Price,
                 ImageUrl = product.ImageUrl,
-                CategoryId = product.CategoryId,
-                CategoryName = product.CategoryName
+                CategoryNames = product.ProductCategories.Select(pc => pc.Category.Name).ToList()
             };
         }
 
-        // Create with image
         public async Task<ProductDto> CreateProductAsync(ProductCreateDto dto, IWebHostEnvironment env)
         {
             string? imageUrl = await SaveImageAsync(dto.Image, env);
@@ -53,28 +54,24 @@ namespace Ecommerce.Services
                 Name = dto.Name,
                 Description = dto.Description,
                 Price = dto.Price,
-                ImageUrl = imageUrl,
-                CategoryId = dto.CategoryId
+                ImageUrl = imageUrl
             };
+
+            // Link multiple categories
+            foreach (var catId in dto.CategoryIds)
+            {
+                product.ProductCategories.Add(new ProductCategory { CategoryId = catId });
+            }
 
             await _unitOfWork.Products.AddAsync(product);
             await _unitOfWork.SaveAsync();
 
-            return new ProductDto
-            {
-                Id = product.Id,
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                ImageUrl = product.ImageUrl,
-                CategoryId = product.CategoryId
-            };
+            return await GetProductByIdAsync(product.Id) ?? throw new Exception("Error creating product");
         }
 
-        // Update with optional image
         public async Task<bool> UpdateProductAsync(int id, ProductCreateDto dto, IWebHostEnvironment env)
         {
-            var existing = await _unitOfWork.Products.GetByIdAsync(id);
+            var existing = await _unitOfWork.Products.GetProductWithCategoriesByIdAsync(id);
             if (existing == null) return false;
 
             if (dto.Image != null)
@@ -85,14 +82,19 @@ namespace Ecommerce.Services
             existing.Name = dto.Name;
             existing.Description = dto.Description;
             existing.Price = dto.Price;
-            existing.CategoryId = dto.CategoryId;
+
+            // Update categories
+            existing.ProductCategories.Clear();
+            foreach (var catId in dto.CategoryIds)
+            {
+                existing.ProductCategories.Add(new ProductCategory { CategoryId = catId });
+            }
 
             _unitOfWork.Products.Update(existing);
             await _unitOfWork.SaveAsync();
             return true;
         }
 
-        // Delete
         public async Task<bool> DeleteProductAsync(int id)
         {
             var product = await _unitOfWork.Products.GetByIdAsync(id);
@@ -103,7 +105,6 @@ namespace Ecommerce.Services
             return true;
         }
 
-        // 🔹 Helper method for image saving
         private async Task<string?> SaveImageAsync(IFormFile? image, IWebHostEnvironment env)
         {
             if (image == null) return null;

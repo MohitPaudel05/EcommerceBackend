@@ -1,6 +1,8 @@
 ﻿using Ecommerce.Dtos;
 using Ecommerce.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,11 +18,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
-    {
-        var products = await _productService.GetAllProductsAsync();
-        return Ok(products);
-    }
+    public async Task<IActionResult> GetAll() => Ok(await _productService.GetAllProductsAsync());
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
@@ -31,25 +29,23 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] ProductCreateDto dto)
+    public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
     {
-        var product = await _productService.CreateProductAsync(dto, _env);
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        var created = await _productService.CreateProductAsync(dto, _env);
+        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromForm] ProductCreateDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] ProductCreateDto dto)
     {
-        var success = await _productService.UpdateProductAsync(id, dto, _env);
-        if (!success) return NotFound();
+        if (!await _productService.UpdateProductAsync(id, dto, _env)) return NotFound();
         return NoContent();
     }
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var success = await _productService.DeleteProductAsync(id);
-        if (!success) return NotFound();
+        if (!await _productService.DeleteProductAsync(id)) return NotFound();
         return NoContent();
     }
 }

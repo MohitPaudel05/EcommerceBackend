@@ -18,7 +18,7 @@ namespace Ecommerce.Services
                 Id = c.Id,
                 Name = c.Name,
                 Description = c.Description,
-                ProductNames = c.Products.Select(p => p.Name).ToList()
+                ProductNames = c.ProductCategories.Select(pc => pc.Product.Name).ToList()
             });
         }
 
@@ -33,7 +33,7 @@ namespace Ecommerce.Services
                 Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
-                ProductNames = category.Products.Select(p => p.Name).ToList()
+                ProductNames = category.ProductCategories.Select(pc => pc.Product.Name).ToList()
             };
         }
 
