@@ -1,4 +1,5 @@
-﻿using Ecommerce.Models;
+﻿using Ecommerce.Dtos;
+using Ecommerce.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -8,5 +9,8 @@ namespace Ecommerce.Interfaces
     {
         Task<IEnumerable<Product>> GetAllProductsWithCategoriesAsync();
         Task<Product?> GetProductWithCategoriesByIdAsync(int id);
-    }
+
+        // Get products using stored procedure
+        Task<IEnumerable<ProductDto>> GetAllProductsFromSPAsync();
+}
 }

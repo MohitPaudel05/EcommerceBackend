@@ -105,6 +105,11 @@ namespace Ecommerce.Services
             return true;
         }
 
+        public async Task<IEnumerable<ProductDto>> GetAllProductsFromSPAsync()
+        {
+            return await _unitOfWork.Products.GetAllProductsFromSPAsync();
+        }
+        //image save method
         private async Task<string?> SaveImageAsync(IFormFile? image, IWebHostEnvironment env)
         {
             if (image == null) return null;

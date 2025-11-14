@@ -1,4 +1,5 @@
-﻿using Ecommerce.Models;
+﻿using Ecommerce.Dtos;
+using Ecommerce.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.Datas
@@ -10,7 +11,8 @@ namespace Ecommerce.Datas
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<ProductCategory> ProductCategories { get; set; } // new join table
+        public DbSet<ProductCategory> ProductCategories { get; set; } 
+        public DbSet<ProductQueryResult> ProductQueryResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -19,7 +21,7 @@ namespace Ecommerce.Datas
             // Configure decimal precision for Price
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
-                .HasPrecision(18, 2); // <-- added this line
+                .HasPrecision(18, 2); 
 
             // Configure many-to-many relationship
             modelBuilder.Entity<ProductCategory>()
@@ -77,6 +79,9 @@ namespace Ecommerce.Datas
                 new ProductCategory { ProductId = 3, CategoryId = 3 },
                 new ProductCategory { ProductId = 3, CategoryId = 1 } // Product 3 also in Electronics
             );
+            // Existing mappings...
+            modelBuilder.Entity<ProductQueryResult>().HasNoKey();
+            modelBuilder.Entity<ProductQueryResult>().ToView(null);
         }
     }
 }

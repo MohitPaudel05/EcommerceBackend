@@ -12,5 +12,8 @@ namespace Ecommerce.Interfaces
         Task<ProductDto> CreateProductAsync(ProductCreateDto dto, IWebHostEnvironment env);
         Task<bool> UpdateProductAsync(int id, ProductCreateDto dto, IWebHostEnvironment env);
         Task<bool> DeleteProductAsync(int id);
+
+        //spmethod
+        Task<IEnumerable<ProductDto>> GetAllProductsFromSPAsync();
     }
 }

@@ -48,4 +48,12 @@ public class ProductsController : ControllerBase
         if (!await _productService.DeleteProductAsync(id)) return NotFound();
         return NoContent();
     }
+    //sp
+
+    [HttpGet("from-sp")]
+    public async Task<IActionResult> GetAllProductsFromSP()
+    {
+        var products = await _productService.GetAllProductsFromSPAsync();
+        return Ok(products);
+    }
 }
